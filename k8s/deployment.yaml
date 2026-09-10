@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastify-cpu-consumer
+  namespace: fastify-test
+  labels:
+    app: fastify-cpu-consumer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastify-cpu-consumer
+  template:
+    metadata:
+      labels:
+        app: fastify-cpu-consumer
+    spec:
+      containers:
+        - name: fastify-cpu-consumer
+          image: edgargmaya/fastify-cpu-consumer:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: PORT
+              value: "3000"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
